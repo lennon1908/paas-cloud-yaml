@@ -1,0 +1,123 @@
+kind: ConfigMap
+apiVersion: v1
+metadata: {name: configmap-paas-gateway, namespace: ns-paas}
+data:
+  application-gateway.yml: |
+    server:
+      port: 8080
+
+    spring:
+      application:
+        name: paas-gateway
+      cloud:
+        gateway:
+          routes:
+            - id: api-app
+              uri: http://svc-paas-app:8080
+              order: 1
+              predicates:
+                - Path=/api-app/**
+              filters:
+                - StripPrefix=1
+
+            - id: api-log
+              uri: http://svc-paas-log:8080
+              order: 3
+              predicates:
+                - Path=/api-log/**
+              filters:
+                - StripPrefix=1
+
+            - id: api-monitor
+              uri: http://svc-paas-monitor:8080
+              order: 5
+              predicates:
+                - Path=/api-monitor/**
+              filters:
+                - StripPrefix=1
+
+            - id: api-user
+              uri: http://svc-paas-user:8080
+              order: ７
+              predicates:
+                - Path=/api-user/**
+              filters:
+                - StripPrefix=1
+
+            - id: api-task
+              uri: http://svc-paas-task:8080
+              order: ９
+              predicates:
+                - Path=/api-task/**
+              filters:
+                - StripPrefix=1
+             
+
+    logging:
+      config: classpath:logback-config.xml
+      path: /mnt/logs/paas-gateway-server
+
+    feign:
+      api:
+        user: http://svc-paas-user:8080
+
+    ribbon:
+      ReadTimeout: 60000
+      ConnectTimeout: 60000
+
+    useradmin:
+      tokenKey: X-Token
+      loginUrl: /user-admin/login
+      requestTimeOut: 60000
+      validateAccountUrl: /user-admin/validateAccount
+      validatePasswordUrl: /user-admin/validatePassword
+      info: /user-admin/info
+      validateHealthUrl: health
+---
+kind: Service
+apiVersion: v1
+metadata: {name: svc-paas-gateway, namespace: ns-paas}
+spec:
+  ports:
+    - {name: client, protocol: TCP, port: 8080, targetPort: 8080, nodePort: 32001}
+  selector: {app: dep-paas-gateway}
+  type: NodePort
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: dep-paas-gateway
+  namespace: ns-paas
+  labels: {app: dep-paas-gateway}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: dep-paas-gateway}
+  template:
+    metadata:
+      labels: {app: dep-paas-gateway}
+    spec:
+      volumes:
+        - name: config
+          configMap:
+            name: configmap-paas-gateway
+            items:
+              - {key: application-gateway.yml, path: application-gateway.yml}
+            defaultMode: 420
+        - name: local-time
+          hostPath: {path: /usr/share/zoneinfo/Asia/Shanghai}
+      nodeName: node5
+      containers:
+        - name: dep-paas-gateway
+          image: 172.18.12.182:8081/ns-paas/paas-gateway-server:10957
+          command: [java]
+          args: [-jar, -Xms64m, -Xmx256m, -Xmn8m, -Xss256k, '-XX:InitialCodeCacheSize=4m',
+                 '-XX:ReservedCodeCacheSize=128m', '-XX:MaxMetaspaceSize=128m', '-XX:CompressedClassSpaceSize=64m',
+                 '-XX:MaxDirectMemorySize=128m', paas-gateway-server-1.0.0.jar, --spring.config.location=/mnt/config/application-gateway.yml,
+                 '&']
+          ports:
+            - {name: service-port, containerPort: 8080, protocol: TCP}
+          volumeMounts:
+            - {name: config, mountPath: /mnt/config}
+            - {name: local-time, mountPath: /etc/localtime}
+          imagePullPolicy: IfNotPresent

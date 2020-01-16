@@ -1,0 +1,46 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: svc-paas-cloud-view
+  namespace: ns-paas
+spec:
+  ports:
+  - name: client
+    protocol: TCP
+    port: 80
+    targetPort: 80
+    nodePort: 32000
+  type: NodePort
+  selector:
+    app: dep-paas-cloud-view
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: dep-paas-cloud-view
+  namespace: ns-paas
+  labels:
+    app: dep-paas-cloud-view
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dep-paas-cloud-view
+  template:
+    metadata:
+      labels:
+        app: dep-paas-cloud-view
+    spec:
+      nodeName: node5
+      containers:
+      - name: pod-paas-cloud-view
+        image: 172.18.12.182:8081/ns-paas/paas-cloud-view:v2.0.2
+        imagePullPolicy: ifNotPresent
+        env:
+        - name: API_HOME_NAME
+          value: http://120.77.228.203:32001
+        ports:
+        - name: tcp
+          containerPort: 80
+          protocol: TCP
+        imagePullPolicy: IfNotPresent

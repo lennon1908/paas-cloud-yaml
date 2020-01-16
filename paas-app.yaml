@@ -1,0 +1,129 @@
+kind: ConfigMap
+apiVersion: v1
+metadata: {name: configmap-paas-app,namespace: ns-paas}
+data:
+  application-app.yml: |
+    server:
+      port: 8080
+    spring:
+      application:
+        name: paas-app
+      mvc:
+        throw-exception-if-no-handler-found: true
+      datasource: 
+        type: com.zaxxer.hikari.HikariDataSource
+        hikari:
+          minimum-idle: 5
+          maximum-pool-size: 100
+          auto-commit: true
+          idle-timeout: 600000
+          pool-name: DatebookHikariCP
+          max-lifetime: 1800000
+          connection-timeout: 60000
+          connection-test-query: select 1
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        username: k8sadmin
+        password: guodi!@#SDF
+        url: jdbc:mysql://rm-wz9jzt458dl4demld.mysql.rds.aliyuncs.com:3306/k8s?characterEncoding=utf-8&useSSL=false
+
+    logging:
+      config: classpath:logback-config.xml
+      path: /mnt/logs/paas-app-server
+      level:
+          root: info
+          com.nlelpct.paas.database.mapper: info
+          com.nlelpct.paas.mybatis.ext.mapper: info
+
+    mybatis-plus:
+      mapper-locations: classpath:/mapper/*.xml
+      typeAliasesPackage: com.nlelpct.paas.database.entity
+    
+    ribbon:
+      ReadTimeout: 60000
+      ConnectTimeout: 60000        
+    
+    harbor:
+      baseUrl: http://172.18.12.182:8081/api
+      adminUser: admin
+      adminPassword: Kenuo2018
+      
+      
+    app:
+      storeProject: store
+      repositoryUrl: 172.18.12.182:8081/ 
+    dockerclient: http://192.168.11.200:8070/dockerclient
+
+  config: |
+    apiVersion: v1
+    clusters:
+    - cluster:
+        certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5RENDQWJDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRFNU1ESXlNakE0TWpreE1sb1hEVEk1TURJeE9UQTRNamt4TWxvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTCtnCjJUcGZwa3g5UzdQLzlxZnY5VlFwdUJWZmdjMWZORzNNNkNXeHJUbjl0M0FFc0xRdTBFRkd6dEVSQ21BeVZiYXYKTjBPV2Y4T2pQK1lNR2YyL1VHZWc4NVZ6VnVVK0NkdlFyNTI2RE9XdHVvaDZ5NHFTK04wMFNoVk44WWVwRjVFVgpHa0lWUUt5UElFT0RkbkFjYUJFL0hQdjJ4a0dZK3lvU0plMlRvSVlrL1RhS2M3Q3RoYUZXNVBtOXdXVzIvT242CjFGdi9UOUFCM3dYZnZxTExrM3hhR21JV1EwWkVoOFZYL2taQmJ5Rlpyc3JTbk9WSVdwSTVHeFVvb3lWY1pvZUwKdytCOG5WNjQ3MnVndk5JL0E1NXllKzRBdDlpZGYvcXJpVXowdTUzZktFdGRHWFJsaFBjSks0N2NWbW5WZE5Jegp0bDBIRTluVm5XNCtpL2duYnBVQ0F3RUFBYU1qTUNFd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFEaDRKZW1jakZYV0hjUjd2YTdDK2dicjlzRVEKbDN3TVRoUElHRUxQdkllUEVBM3BWTGMxOGx1V1BYazZTNFBLTURmREErYkxPNndhMUFWU282dVlLQU9SR09aYwplK3JKWCtUTlp1QXFEV3BjS3FFQ013dGlhUWt6bUw3ZUNIV3RMNnM3WVFXSXNEaWxzWG1OTHJObm9KZEpxeGZKCm4zQk5LTjRsdVllcy9SR0JwTU52T3AxdzBRMjYzOWZ2WW0vbkNhb2t3Y1M3WExWamtDRlFwMHpqYWswdFJIZEsKSFVrblFXQ0g2bERaa3A3UWI3YnZKckJNQnVQUUJyOEtUbDI0N0lSTUZtaTVDcGxsNDJDdWNoellIenNaOFByQgpLVWd0NVh4djZWUy9Va0V2VVFkSTltcmNVbXQvOWcxSHlkUnFCVThFV2xFZm9HRk9WcW1TOGFnSEY0UT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+        server: https://172.18.12.186:6443
+      name: kubernetes
+    contexts:
+    - context:
+        cluster: kubernetes
+        user: kubernetes-admin
+      name: kubernetes-admin@kubernetes
+    current-context: kubernetes-admin@kubernetes
+    kind: Config
+    preferences: {}
+    users:
+    - name: kubernetes-admin
+      user:
+        client-certificate-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM4akNDQWRxZ0F3SUJBZ0lJRlljb2ttS1dJOTR3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB4T1RBeU1qSXdPREk1TVRKYUZ3MHlNREF5TWpJd09ESTVNVE5hTURReApGekFWQmdOVkJBb1REbk41YzNSbGJUcHRZWE4wWlhKek1Sa3dGd1lEVlFRREV4QnJkV0psY201bGRHVnpMV0ZrCmJXbHVNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQWw4QVJyUDM2NXBuRW9BNzQKZzdtRVI3RXkyNWVsekZ5SGRuQklKdlBDczkrVVRKWElaZFRPclVJcGVhUmRVeEVveHVCZzF4K2g5TGVHZWVzOApYSFZ6VVowVk12M2w5cEZOOTZkU1h6WFUzc1k0WFVkUGFWdkZpSU9Zb0FIaU55cERSV0RYSS9DNmxWb3hPdDRXCjA4ajVSVFl4UFJnNHZ4S2F3WDhpNHhtM3JvSmJYZnlGeVJrYkdkOHVQejZEZzZhUWJZcTcyWUNMZ01VVVlOL2gKUFV4NjFWKzNucGI3b2JGczZCUkpPRlJIWE93Sm5IcHRBVUFmT3hySnpCeFdsMUV0ZHlBWUF1QllGME1CcnhGUgpPQml5L1FvY054TjVZdDhwU0hmZUQ5MjVBQWZLVGdPRmViOHk5UkljZ29sM0J0VXhRdUhweGcrVE9oNDBlUVp1CmRCeWlsd0lEQVFBQm95Y3dKVEFPQmdOVkhROEJBZjhFQkFNQ0JhQXdFd1lEVlIwbEJBd3dDZ1lJS3dZQkJRVUgKQXdJd0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFIbVpIQ1ZTUGx2M1JWUHBEa1lscnpPelFQR2ZvZzNrSGxOUwoyeEJKaDVLdE01UllVemxlV2xJeWR0Z0NsNGlxUnc4YzR1U3o0VC8rb3JablVYY0tTd2hEbWEwR1FCZkdSdGZCCkRSaGFLRjUrdFVIQTMvK1VNZmpZbE1HbGl0R0RKcXZ0MFZXMHcrYnFONXhFVjhkZTBHRFpvNytJQUpGcC9hVk8KSU5rUjFnbFd4aU5tWWpROVB0c0RPNlM4bVM5ZWpMTFQzYkEvelJhakU3NHVHYU1xbXA2YW00ZEVZaEdSeWoyeAorTHJaaThxTytsSzNOb3hDZzJneFNUQlNoODNyNlFkVGdFTWNZYzhyd3JqYjJzNXpDS2hia2RkMzJ3YmxVeWt4ClFrS3JjVmsvU0lTTHdUNi9JZzgyZFY1Mlo0ZXp5czBjdjVPSXFsakRjVzhxRHRrLzhJMD0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+        client-key-data: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBbDhBUnJQMzY1cG5Fb0E3NGc3bUVSN0V5MjVlbHpGeUhkbkJJSnZQQ3M5K1VUSlhJClpkVE9yVUlwZWFSZFV4RW94dUJnMXgraDlMZUdlZXM4WEhWelVaMFZNdjNsOXBGTjk2ZFNYelhVM3NZNFhVZFAKYVZ2RmlJT1lvQUhpTnlwRFJXRFhJL0M2bFZveE90NFcwOGo1UlRZeFBSZzR2eEthd1g4aTR4bTNyb0piWGZ5Rgp5UmtiR2Q4dVB6NkRnNmFRYllxNzJZQ0xnTVVVWU4vaFBVeDYxViszbnBiN29iRnM2QlJKT0ZSSFhPd0puSHB0CkFVQWZPeHJKekJ4V2wxRXRkeUFZQXVCWUYwTUJyeEZST0JpeS9Rb2NOeE41WXQ4cFNIZmVEOTI1QUFmS1RnT0YKZWI4eTlSSWNnb2wzQnRVeFF1SHB4ZytUT2g0MGVRWnVkQnlpbHdJREFRQUJBb0lCQUdvWFU4UTN4RU9YMlVsMQpiZlRackV0YTdRMXMxZk1yOVdDdVd5TXdaRHpRNEtNeVRHbzAvMUZONGlVeTdqUDIyU1ZCRlRNUTRHOXdKMG54ClZiL21OUHNuOFB3M1dhQ3FNWElrdm9mbDRLN21zZDAwejZYL0RQakYxOXgxdEt1UWxudFltdEI3cWxaa09lckgKL2ZtT2xnYjNQakZTVDhuMXZjL3RqSHh0TEdlSms3QVdwbWhtaW5hd1QzdCtNU01vNXQyODE0QkVLM3d6WDBQLwpsVlFzUFV2bUV1R1F2MnR5WC8zSzBtT2loMUkzVWE4YXE1VXJWRWxZemgwUE8rY1BKMFZRLzd6WFpYR1lxaG94ClZ5OURrN0ptV0o5Ukk2U2lPZ0tOZFYyZ3dhYThiRGthWWVsMzBOQVE5Y3BXZFRhSVluRHhuQlIzOS9zWFhTWVYKdUlKRUV0RUNnWUVBdzJVMk9Ra0FtSzVKWXk3cDdheWo2aHhhWkxYb0VxZ2ZPdk9RTzdMN2tXRU1yRERETStJNQpDcDNpY1RKZ0lUZ0U3bWpFQzVmdDFwSEVOVWd2SDdOWjZYRWZCc1NHa2ZCd3dVT1dhNTl1dU04QThQd1AydDE4ClZ6OE8rT3IwZi92UDZhR0JET2hCS281cU1HZVF6Y2lBM2RZbEtFU1Z1dzUxQjBoQjFxZnVKdnNDZ1lFQXh0RloKTzROZzZwVmM0VGxtS05XMndGYmQvNmhmNVcyaWQyVTBhdlAycmZ0dDdTNW03Q28rd21uSDZEd3d1Szh2ZVUwawoyV2ZhT2ZsbUFSRU9EU1B2VVpZNzNNcG9TYzVJc1lOL1craitoOHZZRFBMNDl1UTBJUklZYlVvK3JlVWJqa04wCkVvVzBYNkdHZDFocldWbXl4NXgvVzAxUCswOFRzLzVNWWtzZlVCVUNnWUVBcUdGajVLcVpWUGw4VEhoMUpsZ0wKdVFkTjdsUEQ5YS9qbWMyaWtZK2ZzcHhMYTJkcUVCLzJ2K3RtNDkxaGNiN3dvUEt2WHI1Q094SEtYNUFnNjlTRwp1dUM4dC94TGF5QWtTcWVQekpiTHQzN0xkT0FDV2IxY0ZXTkY1OE94aDBqYzFweFN0V2pBSDRneWdodjljUmhECjFPZGhoZDMwbWduUFY4TXcyV1pGbUZrQ2dZQThtUHhRbGxlSXlHT1p4Z3ZzTUU5V1NtTzVrNUUrOVc2S1k0OVoKZGVoZTJQNkZSeHBacXZxYitPL1VTZHd6dmptRENFOU44RWhrV1M2TTdxelF0bjR2Nk5Gd0YwVTRFYWE0YkRMNgpTWWFpenkrWHFzclZQWExpRFlqaWJybXgrTjJ3TzhENkVFU016VWVWd3A1ZGltaGlUTUhJaTBUd2ZRYXRXcm5mClQ3UklqUUtCZ0dMNEdXNjhpV21rc1hhNVhIL2V0d2FYUk56amlJZkRtMzJPbVQrcm5jb3NSQ3ZMUjdBNlR2aDUKdm8vLzlPVHkrRDI5SmJTZHBUU3dtYkhyc3NmZTl6R2lVT0prNFhzRDZSRTRvSnlJbUFEV01FaW8zR2VQakJ6cApoa3VpdHpOWFJ0d3lrbGJFZ3ZNb3RRQzdBaDA5blBnREJOcSt5UWtRbThMbnBFR2F6bUtYCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+---
+kind: Service
+apiVersion: v1
+metadata: {name: svc-paas-app, namespace: ns-paas}
+spec:
+  ports:
+  - {name: client, protocol: TCP, port: 8080, targetPort: 8080}
+  selector: {app: dep-paas-app}
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: dep-paas-app
+  namespace: ns-paas
+  labels: {app: dep-paas-app}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: dep-paas-app}
+  template:
+    metadata:
+      labels: {app: dep-paas-app}
+    spec:
+      volumes:
+      - name: config
+        configMap:
+          name: configmap-paas-app
+          items:
+          - {key: application-app.yml, path: application-app.yml}
+          defaultMode: 420
+      - name: k8s-config
+        configMap:
+          name: configmap-paas-app
+          items:
+          - {key: config, path: config}
+          defaultMode: 420
+      - name: local-time
+        hostPath: {path: /usr/share/zoneinfo/Asia/Shanghai}
+      nodeName: node5 
+      containers:
+      - name: dep-paas-app
+        image: 172.18.12.182:8081/ns-paas/paas-app-server:10957
+        command: [java]
+        args: [-jar, -Xms128m, -Xmx512m, -Xmn8m, -Xss256k, '-XX:InitialCodeCacheSize=4m',
+          '-XX:ReservedCodeCacheSize=128m', '-XX:MaxMetaspaceSize=128m', '-XX:CompressedClassSpaceSize=64m',
+          '-XX:MaxDirectMemorySize=128m', paas-app-server-1.0.0.jar, --spring.config.location=/mnt/config/application-app.yml,
+          '&']
+        ports:
+        - {name: service-port, containerPort: 8080, protocol: TCP}
+        volumeMounts:
+        - {name: config, mountPath: /mnt/config}
+        - {name: k8s-config, mountPath: /root/.kube}
+        - {name: local-time, mountPath: /etc/localtime}
+        imagePullPolicy: IfNotPresent
